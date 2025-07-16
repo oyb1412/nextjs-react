@@ -41,7 +41,7 @@ export default async function handler(
 
     //httponly 쿠키로 내려주기
     res.setHeader('Set-Cookie',[
-        `access-token=${token}; HttpOnly; Path=/; Max-Age = ${7 * 24 * 60 * 60}; SameSite=Lax${
+        `access_token=${token}; HttpOnly; Path=/;Max-Age=${7 * 24 * 60 * 60}; SameSite=Lax${
         process.env.NODE_ENV === 'production' ? '; Secure' : ''
         }`,
     ]);

@@ -12,7 +12,7 @@ export default function SignUpPage() {
     const [pw, setPw] = useState(''); //비밀번호 입력값
     const [error, setError] = useState(''); // 서버에서 온 에러 메시지 저장
 
-    const router = useRouter() // 페이지 이동 함수 저장
+    const router = useRouter(); // 페이지 이동 함수 저장
 
     async function handleSubmit(e : React.FormEvent) {
         e.preventDefault(); //폼 기본 액션 막기

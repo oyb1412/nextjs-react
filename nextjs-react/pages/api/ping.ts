@@ -1,6 +1,3 @@
-console.log('🌐 ENV DB_URL:', process.env.DB_URL);
-
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getPool } from '@/lib/db';
 

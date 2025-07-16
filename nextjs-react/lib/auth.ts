@@ -1,20 +1,20 @@
-import jwt from 'jsonwebtoken';
-import type {NextApiRequest} from "next";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
-export interface JWTPayload{
-    id : number;
-    username : string;
+export interface JWTPayload {
+    id: number;
+    username: string;
 }
 
-//요청에서 쿠키 내 jwt 검증해 payload반환, 없으면 예외
-export function authenticate(req : NextApiRequest) : JWTPayload{
-    const cookie = req.cookies['access_token'];
-    if(!cookie) throw new Error('No access token provided');
+export async function authenticate(): Promise<JWTPayload | null> {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access_token")?.value;
 
-    try{
-        return jwt.verify(cookie, process.env.JWT_SECRET!) as JWTPayload;
-    }
-    catch{
-        throw new Error('Invalid JWT payload');
+    if (!token) return null;
+
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    } catch {
+        throw new Error("Invalid JWT payload");
     }
 }
