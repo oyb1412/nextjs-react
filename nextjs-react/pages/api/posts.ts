@@ -7,11 +7,15 @@ export default async function handler (
     req : NextApiRequest,
     res : NextApiResponse
 ){
-    if(req.method !== 'GET') return res.status(405).end();
+    if(req.method !== 'GET') return res.json({success : false, message : "요청이 올바르지 않습니다"});
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.json({success : false, message : "토큰이 존재하지 않습니다"});
 
     const pool = await getPool();
 
-    const [rows] = await pool.query('SELECT id, title, created_date FROM post');
+    const format = `%Y-%m-%d %H:%i`;
+    const [rows] = await pool.query(`SELECT id, title, DATE_FORMAT(created_date,'${format}') AS created_date FROM post`);
 
-    return res.status(200).json(rows);
+    return res.json({success : true, posts : rows, message : "글 목록을 불러왔습니다"});
 }

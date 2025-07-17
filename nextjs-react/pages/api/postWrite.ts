@@ -10,17 +10,20 @@ export default async function handler(
 {
     if(req.method !== 'POST') return res.status(405).end();
 
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(400).json({ error: 'No token' });
+
     const {title, content} = req.body as {title : string, content : string};
 
     if(!title)
-        return res.status(400).json({error : "제목을 적어주세요"});
+        return res.json({success : true, message : "제목을 적어주세요"});
 
     if(!content)
-        return res.status(400).json({error : "내용을 적어주세요"});
+        return res.json({success : true, message : "내용을 적어주세요"});
 
     const pool = await getPool();
 
     await pool.query('INSERT INTO post(title, content) VALUES(?, ?)', [title, content]);
 
-    return res.status(201).json({ok : true});
+    return res.json({success : true, message : "글 작성 성공"});
 }

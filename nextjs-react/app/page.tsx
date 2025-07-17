@@ -1,55 +1,88 @@
+'use client'
+
 //Link는 a대신 쓰는 nextjs전용 라우터. 페이지 전환이 빠르다.
 import Link from 'next/link';
 
 //유저 어텐티케이션
-import { authenticate } from "@/lib/auth";
+import {useState, useEffect} from "react";
 
-export default async function Home() {
-    const user = await authenticate();
+export default function Home() {
+    console.log("Home 컴포넌트 렌더됨!");
+    const [user, setUser] = useState<any | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchMain = async () => {
+            const token = localStorage.getItem('accessToken');
+            console.log('토큰:', token);
+            if (!token){
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+            try {
+                const res = await fetch('/api/me', {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                const result = await res.json();
+
+                if (result.success) {
+                    setUser(result.user);
+                } else {
+                    setUser(null);
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchMain().then();
+    }, []);
 
 
-    return (
-        <main className="flex flex-col items-center justify-center h-screen gap-8">
-            {/* 로그인 시(유저 어텐티케이션이 존재할 시) */}
-            {user ? (
-                <>
-                <h1 className="text-4xl font-bold">{user.username}님, 어서오세요</h1>
-
-                    {/* 게시글 목록 버튼 */}
-                    <Link
-                        href="/posts"
-                        className="bg-green-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-                    >
-                        게시글
-                    </Link>
-
-                    {/* 로그아웃 버튼 */}
-                    <Link
-                        href="/logout"
-                        className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-                    >
-                        로그아웃
-                    </Link>
-                </>
-            ) : (
-                <>
-                    {/* 회원가입 버튼 */}
-                    <Link
-                        href="/signup"
-                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-                    >
-                        회원가입
-                    </Link>
-
-                    {/* 로그인 버튼 */}
-                    <Link
-                        href="/login"
-                        className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-                    >
-                        로그인
-                    </Link>
-                </>
-            )}
-        </main>
+    return loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+            <h1 className="text-3xl font-bold text-gray-700  animate-pulse">로딩중입니다...</h1>
+        </div>
+    ) : (
+        <div className="min-h-screen bg-white p-8">
+            <div className="max-w-md mx-auto bg-gray-50 rounded-lg p-6 shadow-sm">
+                <h1 className="text-2xl font-bold text-center mb-8">메인 페이지</h1>
+                {user ? (
+                    <div className="space-y-4">
+                        <h2 className="text-xl text-center text-blue-600 mb-6">어서오세요!</h2>
+                        <div className="space-y-3">
+                            <Link href="/logout">
+                                <button className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors">
+                                    로그아웃
+                                </button>
+                            </Link>
+                            <Link href="/posts">
+                                <button className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+                                    게시글 목록
+                                </button>
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <Link href="/login">
+                            <button className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+                                로그인
+                            </button>
+                        </Link>
+                        <Link href="/signup">
+                            <button className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors">
+                                회원가입
+                            </button>
+                        </Link>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }
