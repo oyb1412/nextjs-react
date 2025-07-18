@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const ttl = exp ? exp * 1000 - Date.now() : 1000 * 60 * 60 * 24 * 7;
 
         await redis.set(`blacklist:${token}`, 'true', 'PX', ttl);
-        return res.json({success : true, message : "로그아웃 하였습니다"});
+        return res.json({success : true});
     } catch {
         return res.json({ success : false, message : '토큰 정보가 올바르지 않습니다' });
     }

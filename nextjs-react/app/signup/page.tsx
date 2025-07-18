@@ -29,13 +29,13 @@ export default function SignUpPage() {
 
             const result = await res.json();
 
-            alert(result.message);
 
             if(result.success){
                 //가입 성공 -> 메인 페이지로 이동
                 router.push('/');
                 return;
             }else{
+                alert(result.message);
                 console.error(result.message);
             }
         }

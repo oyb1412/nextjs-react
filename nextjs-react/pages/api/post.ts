@@ -17,16 +17,15 @@ export default async function handler(
 
     const pool = await getPool();
 
-    const [dup] = await pool.query('SELECT title, content FROM post WHERE id=?', [postId]);
+    const format = `%Y-%m-%d %H:%i`;
+    const [rows] = await pool.query(`SELECT title, content, DATE_FORMAT(created_date, '${format}') AS created_date FROM post WHERE id=?`, [postId]);
 
-    if(!(dup as any[]).length)
+    if(!(rows as any[]).length)
          return res.json({success : false, message : "글 정보가 올바르지 않습니다"});
 
-    const dop = dup as any[];
+    const row = rows as any[];
     return res.json({
         success : true,
-        message : "글 정보를 불러왔습니다",
-        title : dop[0].title,
-        content : dop[0].content
+        post : row[0]
     });
 }

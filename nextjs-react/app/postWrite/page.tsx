@@ -15,10 +15,7 @@ export default function postWritePage(){
     {
         e.preventDefault();
         setLoading(true);
-        const data = {
-            title : title,
-            content : content
-        };
+
 
         const token = localStorage.getItem('accessToken');
         if(!token){
@@ -27,6 +24,11 @@ export default function postWritePage(){
         }
 
         try {
+            const data = {
+                title : title,
+                content : content
+            };
+
             const res = await fetch('/api/postWrite', {
                 method: 'POST',
                 headers: {
@@ -37,13 +39,13 @@ export default function postWritePage(){
             });
 
             const result = await res.json();
-            alert(result.message);
 
             if (result.success) {
                 router.push('/posts');
                 return;
             }
             else {
+                alert(result.message);
                 console.error(result.message);
             }
         }

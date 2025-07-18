@@ -36,5 +36,5 @@ export default async function handler(
     await pool.query('INSERT INTO user (username, password) VALUES (?, ?)', [email, hash]);
 
     //성공 응답
-    return res.json({success : true, message : "회원가입에 성공했습니다"});
+    return res.json({success : true});
 }

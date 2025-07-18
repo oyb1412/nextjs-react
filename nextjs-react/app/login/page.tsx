@@ -2,7 +2,8 @@
 
 import {useState} from 'react';
 import {useRouter} from "next/navigation";
-import Link from 'next/link';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function LoginPage(){
     const [email, setEmail] = useState('');
@@ -11,9 +12,7 @@ export default function LoginPage(){
 
     const router = useRouter();
 
-    async function handleSubmit(e : React.FormEvent) {
-        e.preventDefault();
-
+    async function handleLogin() {
         setLoading(true);
 
         try {
@@ -26,12 +25,15 @@ export default function LoginPage(){
 
             const result = await res.json();
 
-            alert(result.message);
 
             if (result.success) {
                 localStorage.setItem('accessToken', result.accessToken);
                 router.push('/');
                 return;
+            }
+            else
+            {
+                alert(result.message);
             }
         }catch(e){
             console.error(e);
@@ -42,58 +44,59 @@ export default function LoginPage(){
         }
     }
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-white px-4">
-            {loading ? (
-                <div className="text-2xl font-bold text-gray-700 animate-pulse">로딩중입니다...</div>
-            ) : (
-                <div className="max-w-md w-full bg-gray-50 rounded-lg p-6 shadow-sm">
-                    <h1 className="text-2xl font-bold text-center mb-8">로그인</h1>
+    async function handleNaverLogin(){
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">이메일</label>
+    }
+
+    return (
+        <>
+            <Header />
+            <main className="min-h-[80vh] flex items-center justify-center bg-white px-4">
+                {loading ? (
+                    <div className="text-2xl font-bold text-gray-700 animate-pulse">로딩중입니다...</div>
+                ) : (
+                    <div className="max-w-md w-full bg-gray-50 rounded-lg p-6 shadow-md">
+                        <h1 className="text-2xl font-bold text-center mb-6">아이템매니아 회원 로그인</h1>
+
+                        {/* 이메일 입력 */}
+                        <div className="space-y-4">
                             <input
-                                type="email"
+                                type="text"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                                placeholder="이메일을 입력하세요"
-                                required
+                                placeholder="아이디"
                             />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">비밀번호</label>
                             <input
                                 type="password"
                                 value={pw}
                                 onChange={(e) => setPw(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                                placeholder="비밀번호를 입력하세요"
-                                required
+                                placeholder="비밀번호"
                             />
                         </div>
 
-                        <div className="space-y-3 pt-4">
-                            <button
-                                type="submit"
-                                className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
-                            >
-                                확인
-                            </button>
-                            <Link href="/">
-                                <button
-                                    type="button"
-                                    className="w-full bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors"
-                                >
-                                    뒤로가기
-                                </button>
-                            </Link>
-                        </div>
-                    </form>
-                </div>
-            )}
-        </div>
+                        {/* 일반 로그인 */}
+                        <button
+                            onClick={() => handleLogin()}
+                            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
+                        >
+                            로그인
+                        </button>
+
+                        {/* 네이버 로그인 */}
+                        <button
+                            onClick={() => handleNaverLogin()}
+                            className="w-full mt-3 bg-green-500 text-white py-2 rounded font-semibold hover:bg-green-600 transition-colors"
+                        >
+                            네이버 아이디로 로그인
+                        </button>
+
+                    </div>
+                )}
+            </main>
+            <Footer />
+        </>
     );
 }

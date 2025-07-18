@@ -8,12 +8,11 @@ import Link from "next/link";
 export default function PostPage(){
     const params = useParams();
     const postId = params!.id;
-
     const router = useRouter();
-
 
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
+    const [createdDate, setCreatedDate] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() =>{
@@ -32,13 +31,14 @@ export default function PostPage(){
                 });
 
                 const result = await res.json();
-                alert(result.message);
 
                 if(result.success){
-                    setTitle(result.title);
-                    setContent(result.content);
+                    setTitle(result.post.title);
+                    setContent(result.post.content);
+                    setCreatedDate(result.post.created_date);
                 }
                 else{
+                    alert(result.message);
                     console.error(result.message);
                 }
             }
@@ -80,6 +80,16 @@ export default function PostPage(){
                                 readOnly
                                 rows={8}
                                 className="w-full p-3 border border-gray-300 rounded bg-gray-100 resize-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">작성일</label>
+                            <input
+                                type="text"
+                                value={createdDate}
+                                readOnly
+                                className="w-full p-3 border border-gray-300 rounded bg-gray-100"
                             />
                         </div>
 

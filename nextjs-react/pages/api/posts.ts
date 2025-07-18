@@ -17,5 +17,5 @@ export default async function handler (
     const format = `%Y-%m-%d %H:%i`;
     const [rows] = await pool.query(`SELECT id, title, DATE_FORMAT(created_date,'${format}') AS created_date FROM post`);
 
-    return res.json({success : true, posts : rows, message : "글 목록을 불러왔습니다"});
+    return res.json({success : true, posts : rows});
 }

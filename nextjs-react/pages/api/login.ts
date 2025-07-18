@@ -1,5 +1,4 @@
 //로그인 요청 처리
-
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {getPool} from '@/lib/db';
 import bcrypt from 'bcryptjs';
@@ -43,6 +42,5 @@ export default async function handler(
     );
 
     return res.json({success : true,
-                     accessToken : token,
-                     message: "로그인 성공"});
+                     accessToken : token});
 }

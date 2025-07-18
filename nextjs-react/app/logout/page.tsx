@@ -22,7 +22,6 @@ export default function SetLogout(){
                 });
 
                 const result = await res.json();
-                alert(result.message);
 
                 if(result.success){
                     localStorage.removeItem('accessToken');
@@ -30,6 +29,7 @@ export default function SetLogout(){
                     return;
                 }
                 else{
+                    alert(result.message);
                     console.error(result.message);
                 }
             }catch(e)
