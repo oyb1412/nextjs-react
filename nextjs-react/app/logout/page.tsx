@@ -2,12 +2,16 @@
 
 import {useRouter} from "next/navigation";
 import {useEffect } from "react";
+import {useGlobalUser} from "@/app/stores/UserContext";
+
 
 export default function SetLogout(){
     const router = useRouter();
+    const [user, setUser] = useGlobalUser();
 
     useEffect(() => {
         const fetchLogout = async () => {
+
             const token = localStorage.getItem('accessToken');
             if (!token) {
                 router.push('/');
@@ -24,6 +28,7 @@ export default function SetLogout(){
                 const result = await res.json();
 
                 if(result.success){
+                    setUser(null);
                     localStorage.removeItem('accessToken');
                     router.push('/');
                     return;

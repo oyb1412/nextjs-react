@@ -1,42 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useRouter} from "next/navigation";
+import {useGlobalUser} from "@/app/stores/UserContext";
+
 
 export default function Header() {
     const [searchKeyword, setSearchKeyword] = useState<string>('');
-    const [user, setUser] = useState<any | null>(null);
+    const [user] = useGlobalUser();
     const router = useRouter();
-
-    useEffect(() => {
-        const fetchMain = async () => {
-            const token = localStorage.getItem('accessToken');
-            console.log('토큰:', token);
-            if (!token){
-                setUser(null);
-                return;
-            }
-            try {
-                const res = await fetch('/api/me', {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                const result = await res.json();
-
-                if (result.success) {
-                    setUser(result.user);
-                } else {
-                    setUser(null);
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        };
-        fetchMain().then();
-    }, []);
 
     async function handleSearch(){
         if(!searchKeyword)
@@ -81,7 +54,7 @@ export default function Header() {
                 {/* 로그인 버튼 */}
                 {user ? (
                     <div className="text-sm text-gray-700 whitespace-nowrap">
-                        <Link href="/login" className="hover:underline flex items-center gap-1">
+                        <Link href="/logout" className="hover:underline flex items-center gap-1">
                             <span>→</span> 로그아웃
                         </Link>
                     </div>

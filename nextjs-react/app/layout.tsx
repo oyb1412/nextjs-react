@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Pacifico } from "next/font/google";
 import "./globals.css";
+import {UserProvider} from "@/app/stores/UserContext";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const pacifico = Pacifico({
     weight: '400',
@@ -34,7 +37,11 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} antialiased`}
         >
+        <UserProvider> {/*전역 유저 상태를 사용할 수 있게 앱 전체를 감싸주기*/}
+            <Header />
         {children}
+            <Footer />
+        </UserProvider>
         </body>
         </html>
     );

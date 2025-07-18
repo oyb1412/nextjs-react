@@ -4,11 +4,13 @@ import {useState} from 'react';
 import {useRouter} from "next/navigation";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import {useGlobalUser} from "@/app/stores/UserContext";
 
 export default function LoginPage(){
     const [email, setEmail] = useState('');
     const [pw, setPw] = useState('');
     const [loading, setLoading] = useState<boolean>(false);
+    const [user, setUser] = useGlobalUser();
 
     const router = useRouter();
 
@@ -27,6 +29,7 @@ export default function LoginPage(){
 
 
             if (result.success) {
+                setUser(result.accessToken);
                 localStorage.setItem('accessToken', result.accessToken);
                 router.push('/');
                 return;
@@ -50,7 +53,6 @@ export default function LoginPage(){
 
     return (
         <>
-            <Header />
             <main className="min-h-[80vh] flex items-center justify-center bg-white px-4">
                 {loading ? (
                     <div className="text-2xl font-bold text-gray-700 animate-pulse">로딩중입니다...</div>
@@ -96,7 +98,6 @@ export default function LoginPage(){
                     </div>
                 )}
             </main>
-            <Footer />
         </>
     );
 }

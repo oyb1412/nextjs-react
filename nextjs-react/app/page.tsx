@@ -10,8 +10,6 @@ import Footer from './components/Footer';
 export default function Home() {
     return (
         <>
-            <Header />
-
             <main className="container mx-auto px-4 py-8 space-y-12">
 
                 {/* 파워물품 ZONE */}
@@ -90,8 +88,6 @@ export default function Home() {
                     </div>
                 </section>
             </main>
-
-            <Footer />
         </>
     );
 
