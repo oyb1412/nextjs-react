@@ -1,94 +1,131 @@
-
+'use client'
 //Link는 a대신 쓰는 nextjs전용 라우터. 페이지 전환이 빠르다.
 import Link from 'next/link';
+import {useEffect, useState}  from 'react';
 
-//유저 어텐티케이션
-
-import Header from './components/Header';
-import Footer from './components/Footer';
 
 export default function Home() {
+    type tradeItem = {
+        id : number,
+        selected_game: string,
+        amount: number,
+        price: number;
+    };
+    const [recentSellList, setRecentSellList] = useState<tradeItem[]>([]);
+    const [recentBuyList, setRecentBuyList] = useState<tradeItem[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        const fetchRecentlySell = async () => {
+            try {
+                const res = await fetch('/api/recentlyTrade');
+
+                const result = await res.json();
+
+                if(result.success)
+                {
+                    setRecentSellList(result.recentSellList);
+                    setRecentBuyList(result.recentBuyList);
+                }
+
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchRecentlySell().then();
+    }, []);
+
+
+
     return (
         <>
-            <main className="container mx-auto px-4 py-8 space-y-12">
-
-                {/* 파워물품 ZONE */}
-                <section>
-                    <h2 className="text-xl font-bold mb-4">
-                        <span className="text-black">파워물품 </span>
-                        <span className="text-blue-500">ZONE</span> 지금 템 + 머니 뭐 필요하세요? ⚡
-                    </h2>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {[
-                            { title: "디아블로2:레저렉션", desc: "래더", price: "1개당 1,000원" },
-                            { title: "메이플스토리월드", desc: "메이플랜드", price: "100만당 3,430원" },
-                            { title: "패스오브엑자일", desc: "4개월리그", price: "1당 1,000원" },
-                            { title: "디아블로2:레저렉션", desc: "스탠다드", price: "1개당 1,000원" },
-                            { title: "메이플스토리월드", desc: "메이플랜드", price: "100만당 3,350원" },
-                            { title: "패스오브엑자일", desc: "4개월리그", price: "10당 680원" },
-                            { title: "디아블로2:레저렉션", desc: "래더", price: "1개당 1,000원" },
-                            { title: "서든어택", desc: "기타", price: "1,000당 2,150원" },
-                            { title: "디아블로2:레저렉션", desc: "래더", price: "1개당 100원" },
-                            { title: "디아블로2:레저렉션", desc: "스탠다드", price: "1개당 100원" },
-                        ].map((item, i) => (
-                            <div key={i} className="bg-white border p-4 rounded shadow text-center">
-                                <h3 className="text-sm font-semibold text-blue-500">{item.title}</h3>
-                                <p className="text-xs text-gray-500">{item.desc}</p>
-                                <p className="mt-1 text-sm font-medium text-gray-800">{item.price}</p>
-                            </div>
-                        ))}
+            {loading && (
+                <div className="fixed inset-0 bg-white/80 z-[9999] flex items-center justify-center">
+                    <div className="text-2xl font-bold text-gray-700 animate-pulse">
+                        로딩 중...
                     </div>
-                </section>
+                </div>
+            )}
 
-                {/* 매니아 핫게임 & 게임순위 */}
-                <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <main className="mx-auto px-4 pt-24 pb-12 max-w-screen-xl">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                    {/* 핫게임 */}
-                    <div>
-                        <h2 className="text-xl font-bold mb-4">
-                            <span className="text-black">매니아 </span>
-                            <span className="text-red-600">핫게임</span> 놓치면 후회할 매니아 추천게임 🔥
-                        </h2>
-
-                        <div className="grid grid-cols-5 gap-4 text-center text-sm">
-                            {[
-                                "실버앤블러드", "세븐나이츠리버스", "에그몬월드:저니", "인생존망겜", "츄위:삼국",
-                                "야드", "히어로즈크루", "미니언100", "킹오브파이터AFK", "메카브레이크"
-                            ].map((game, i) => (
-                                <div key={i} className="bg-white border p-3 rounded shadow">
-                                    {game}
-                                </div>
+                    {/* 최근 판매글 목록 */}
+                    <section className="bg-white border p-4 rounded shadow">
+                        <h2 className="text-lg font-bold mb-4">최근 등록된 판매글</h2>
+                        <table className="w-full text-sm table-auto">
+                            <thead>
+                            <tr className="text-left border-b">
+                                <th className="py-2">게임</th>
+                                <th>판매량</th>
+                                <th>가격</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {recentSellList.map((item) => (
+                                <tr key={item.id}>
+                                    <td className="py-2">
+                                        <Link href={`/sellPage/${item.id}`}>
+                                            <div className="w-full h-full text-blue-600 hover:underline">
+                                        {item.selected_game}
+                                            </div>
+                                        </Link>
+                                    </td>
+                                    <td className="py-2">{item.amount}</td>
+                                    <td className="py-2">{item.price}</td>
+                                </tr>
                             ))}
-                        </div>
-                    </div>
+                            </tbody>
+                        </table>
+                    </section>
 
-                    {/* 게임순위 */}
-                    <div>
-                        <h2 className="text-xl font-bold mb-4">게임순위</h2>
+                    {/* 최근 구매글 목록 */}
+                    <section className="bg-white border p-4 rounded shadow">
+                        <h2 className="text-lg font-bold mb-4">최근 등록된 구매글</h2>
+                        <table className="w-full text-sm table-auto">
+                            <thead>
+                            <tr className="text-left border-b">
+                                <th className="py-2">게임</th>
+                                <th>구매량</th>
+                                <th>가격</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {recentBuyList.map((item) => (
+                                <tr key={item.id}>
+                                    <td className="py-2">
+                                        <Link href={`/buyPage/${item.id}`}>
+                                            <div className="w-full h-full text-blue-600 hover:underline">
+                                                {item.selected_game}
+                                            </div>
+                                        </Link>
+                                    </td>
+                                    <td className="py-2">{item.amount}</td>
+                                    <td className="py-2">{item.price}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </section>
+
+                    {/* 인기 거래 게임 */}
+                    <section className="bg-white border p-4 rounded shadow">
+                        <h2 className="text-lg font-bold mb-4">최근 거래량 많은 게임</h2>
                         <ol className="space-y-2 text-sm">
-                            {[
-                                "메이플스토리 👑",
-                                "메이플스토리월드",
-                                "로스트아크",
-                                "리니지 🔻18",
-                                "바람의나라클래식",
-                                "던전앤파이터",
-                                "오딘:발할라라이징 🔻3",
-                                "패스오브엑자일 🔻1",
-                                "마비노기 🔻1",
-                                "서든어택 🔻3"
-                            ].map((game, i) => (
-                                <li key={i} className="flex justify-between px-4 py-2 bg-gray-100 rounded">
-                                    <span className="font-bold">{i + 1}.</span>
-                                    <span className="ml-2">{game}</span>
+                            {[1, 2, 3, 4, 5].map((rank) => (
+                                <li key={rank} className="flex justify-between px-2 py-1 bg-gray-100 rounded">
+                                    <span>{rank}.</span>
+                                    <span>게임명</span>
                                 </li>
                             ))}
                         </ol>
-                    </div>
-                </section>
+                    </section>
+                </div>
             </main>
         </>
     );
-
 }

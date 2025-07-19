@@ -1,13 +1,14 @@
 'use client'
 
 import {useRouter} from "next/navigation";
-import {useEffect } from "react";
+import {useEffect, useState } from "react";
 import {useGlobalUser} from "@/app/stores/UserContext";
 
 
 export default function SetLogout(){
     const router = useRouter();
-    const [user, setUser] = useGlobalUser();
+    const [, setUser] = useGlobalUser();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchLogout = async () => {
@@ -17,6 +18,8 @@ export default function SetLogout(){
                 router.push('/');
                 return;
             }
+
+            setLoading(true);
             try{
                 const res = await fetch('/api/logout', {
                     method: 'POST',
@@ -40,6 +43,8 @@ export default function SetLogout(){
             }catch(e)
             {
                 console.error(e);
+            }finally {
+                setLoading(false);
             }
         };
 
@@ -47,9 +52,9 @@ export default function SetLogout(){
     }, []);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="fixed inset-0 bg-white/80 z-[9999] flex items-center justify-center">
             <div className="text-2xl font-bold text-gray-700 animate-pulse">
-                로그아웃 중입니다...
+                로딩 중입니다...
             </div>
         </div>
     );

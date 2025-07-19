@@ -11,6 +11,7 @@ export default function SignUpPage() {
     //상태 선언(이메일, 비밀번호, 에러 메시지)
     const [email, setEmail] = useState(''); //이메일 입력값
     const [pw, setPw] = useState(''); //비밀번호 입력값
+    const [name, setName] = useState('');
     const [loading, setLoading] = useState<boolean>(false);
 
     const router = useRouter(); // 페이지 이동 함수 저장
@@ -24,15 +25,14 @@ export default function SignUpPage() {
             const res = await fetch('/api/signup', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email: email, password: pw})
+                body: JSON.stringify({email: email, password: pw, name : name})
             });
 
             const result = await res.json();
 
-
             if(result.success){
                 //가입 성공 -> 메인 페이지로 이동
-                router.push('/');
+                router.push('/login');
                 return;
             }else{
                 alert(result.message);
@@ -48,11 +48,17 @@ export default function SignUpPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white px-4">
-            {loading ? (
-                <div className="text-2xl font-bold text-gray-700 animate-pulse">로딩중입니다...</div>
-            ) : (
-                <div className="max-w-md w-full bg-gray-50 rounded-lg p-6 shadow-sm">
+        <>
+            {loading && (
+                <div className="fixed inset-0 bg-white/80 z-[9999] flex items-center justify-center">
+                    <div className="text-2xl font-bold text-gray-700 animate-pulse">
+                        로딩 중입니다...
+                    </div>
+                </div>
+            )}
+
+            <main className="mx-auto px-4 pt-24 pb-12 max-w-screen-sm">
+                <div className="bg-white rounded-lg p-6 shadow-md border">
                     <h1 className="text-2xl font-bold text-center mb-8">회원가입</h1>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -80,6 +86,18 @@ export default function SignUpPage() {
                             />
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-medium mb-2">이름</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                                placeholder="이름을 입력하세요"
+                                required
+                            />
+                        </div>
+
                         <div className="space-y-3 pt-4">
                             <button
                                 type="submit"
@@ -98,8 +116,8 @@ export default function SignUpPage() {
                         </div>
                     </form>
                 </div>
-            )}
-        </div>
+            </main>
+        </>
     );
 
 }

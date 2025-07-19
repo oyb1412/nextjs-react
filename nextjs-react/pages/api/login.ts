@@ -42,5 +42,6 @@ export default async function handler(
     );
 
     return res.json({success : true,
-                     accessToken : token});
+                     accessToken : token,
+                     id : raw[0].id});
 }

@@ -5,6 +5,7 @@ import {UserProvider} from "@/app/stores/UserContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
+
 const pacifico = Pacifico({
     weight: '400',
     subsets: ['latin'],

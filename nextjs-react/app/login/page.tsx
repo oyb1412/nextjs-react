@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import {useGlobalUser} from "@/app/stores/UserContext";
+import Link from "next/link";
 
 export default function LoginPage(){
     const [email, setEmail] = useState('');
@@ -27,9 +28,8 @@ export default function LoginPage(){
 
             const result = await res.json();
 
-
             if (result.success) {
-                setUser(result.accessToken);
+                setUser(result.id);
                 localStorage.setItem('accessToken', result.accessToken);
                 router.push('/');
                 return;
@@ -53,10 +53,14 @@ export default function LoginPage(){
 
     return (
         <>
-            <main className="min-h-[80vh] flex items-center justify-center bg-white px-4">
-                {loading ? (
+            {loading && (
+                <div className="fixed inset-0 bg-white/80 z-[9999] flex items-center justify-center">
                     <div className="text-2xl font-bold text-gray-700 animate-pulse">로딩중입니다...</div>
-                ) : (
+                </div>
+            )}
+
+            <main className="mx-auto px-4 pt-24 pb-12 max-w-screen-xl">
+                <div className="flex justify-center">
                     <div className="max-w-md w-full bg-gray-50 rounded-lg p-6 shadow-md">
                         <h1 className="text-2xl font-bold text-center mb-6">아이템매니아 회원 로그인</h1>
 
@@ -82,7 +86,7 @@ export default function LoginPage(){
                         {/* 일반 로그인 */}
                         <button
                             onClick={() => handleLogin()}
-                            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
+                            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold mt-4"
                         >
                             로그인
                         </button>
@@ -95,9 +99,16 @@ export default function LoginPage(){
                             네이버 아이디로 로그인
                         </button>
 
+                        {/* 회원가입 */}
+                        <Link href="/signup">
+                        <button className="w-full mt-3 bg-orange-500 text-white py-2 rounded font-semibold hover:bg-green-600 transition-colors">
+                            회원가입
+                        </button>
+                        </Link>
                     </div>
-                )}
+                </div>
             </main>
         </>
     );
+
 }

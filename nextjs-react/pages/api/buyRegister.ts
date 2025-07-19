@@ -50,7 +50,7 @@ export default async function handler(
 
     const userId = user.id;
 
-    await pool.query('INSERT INTO sellitem(seller_id, selected_game, amount, price, char_name, title, content, selected_server) VALUES(?,?,?,?,?,?,?,?)', [userId, selectedGame, parsedAmount, parsedPrice ,charName ,title, content, selectedServer]);
+    await pool.query('INSERT INTO buyitem(buyer_id, selected_game, amount, price, char_name, title, content, selected_server) VALUES(?,?,?,?,?,?,?,?)', [userId, selectedGame, parsedAmount, parsedPrice ,charName ,title, content, selectedServer]);
 
-    return res.json({success : true, message : "판매 등록했습니다"});
+    return res.json({success : true, message : "구매 등록했습니다"});
 }
