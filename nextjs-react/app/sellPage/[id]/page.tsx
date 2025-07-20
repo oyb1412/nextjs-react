@@ -26,15 +26,6 @@ export default function sell(){
     const pageId = useParams()?.id;
 
     useEffect(() => {
-        if(!user)
-        {
-            alert("로그인 후 이용해주세요");
-            router.push("/");
-            return;
-        }
-    }, [user]);
-
-    useEffect(() => {
         const fetchSellPage = async () => {
             const token = localStorage.getItem('accessToken');
             if(!token){
@@ -96,7 +87,7 @@ export default function sell(){
             setLoading(true);
             //유저의 보유 포인트로 구매 가능한가?
             const pay = await fetch(`/api/canBuy?price=${sellDescription.price}&pageId=${pageId}`,{
-                    method: "GET",
+                    method: "POST",
                     headers : {
                         'Authorization' : `Bearer ${token}`
                     }

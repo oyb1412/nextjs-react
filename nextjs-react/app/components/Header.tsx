@@ -1,17 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
-import {useGlobalUser} from "@/app/stores/UserContext";
 import {GameData} from "@/pages/util/GameData";
+import {useGlobalUser} from "@/app/stores/UserContext";
 
 
 export default function Header() {
     const [searchKeyword, setSearchKeyword] = useState<string>('');
-    const [user] = useGlobalUser();
+    const [hasUnreadAlarm, setHasUnreadAlarm] = useState<boolean>(false);
     const gameList = Object.keys(GameData);
     const router = useRouter();
+    const [user] =  useGlobalUser();
 
     async function handleSearch(){
         if(!searchKeyword){
@@ -23,6 +24,39 @@ export default function Header() {
         }
         router.push('/search');
     }
+
+    useEffect(() => {
+        const fetchUnreadAlarm = async () => {
+            const token = localStorage.getItem('accessToken');
+            if(!token){
+                return;
+            }
+
+            try{
+                const res = await fetch(`/api/unreadAlarm?userId=${token}`,{
+                    method: "GET",
+                    headers : {
+                        'Authorization' : `Bearer ${token}`
+                    }
+                });
+
+                const result = await res.json();
+
+                if(result.success){
+                    setHasUnreadAlarm(result.unreadAlarm);
+                }
+            }catch (e){
+                console.error(e);
+            }
+        }
+        fetchUnreadAlarm().then();
+
+        // 1분마다 실행
+        const intervalId = setInterval(fetchUnreadAlarm, 60000);
+
+        // 컴포넌트 언마운트 시 인터벌 제거
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <header className="w-full bg-white border-b shadow-sm">
@@ -84,20 +118,26 @@ export default function Header() {
                     </div>
                 </div>
 
-                {/* 로그인 버튼 */}
-                {user ? (
-                    <div className="text-sm text-gray-700 whitespace-nowrap">
+                <div className="flex items-center gap-6 text-sm text-gray-700 whitespace-nowrap">
+                    {/* 알림 텍스트 */}
+                    <div className="relative font-bold text-base text-black-600">
+                        알림
+                        {hasUnreadAlarm && (
+                            <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                        )}
+                    </div>
+
+                    {/* 로그인/로그아웃 버튼 */}
+                    {user ? (
                         <Link href="/logout" className="hover:underline flex items-center gap-1">
                             <span>→</span> 로그아웃
                         </Link>
-                    </div>
-                ) : (
-                    <div className="text-sm text-gray-700 whitespace-nowrap">
+                    ) : (
                         <Link href="/login" className="hover:underline flex items-center gap-1">
                             <span>→</span> 로그인
                         </Link>
-                    </div>
-                )}
+                    )}
+                </div>
 
             </div>
 
