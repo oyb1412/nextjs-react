@@ -21,6 +21,9 @@ export default function MyRoomPage() {
         is_sell : boolean
     }
 
+    const [sellRegisterCount, setSellRegisterCount ] = useState<number>();
+    const [buyRegisterCount, setBuyRegisterCount ] = useState<number>();
+
     const [tradingItem,  setTradingItem] = useState<tradingItem>();
     const [tradeOverItem,setTradeOverItem] = useState<tradeOverItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -48,6 +51,9 @@ export default function MyRoomPage() {
                 const result = await res.json();
 
                 if(result.success){
+                    setSellRegisterCount(result.sellRegisterCount);
+                    setBuyRegisterCount(result.buyRegisterCount);
+
                     setTradingItem(result.tradingItem);
                     setTradeOverItem(result.tradeOverItem);
                 }
@@ -82,6 +88,16 @@ export default function MyRoomPage() {
                         <h2 className="font-semibold text-gray-700">판매 현황</h2>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-center text-sm">
+
+                        <Link href="/tradeList?type=sellRegister" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">판매 등록</p>
+                                <p className="text-blue-600 font-bold text-xl">
+                                    {sellRegisterCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
+
                         <Link href="/tradeList?type=selling" className="block text-center cursor-pointer">
                             <div>
                                 <p className="text-gray-600">판매중</p>
@@ -108,6 +124,16 @@ export default function MyRoomPage() {
                         <h2 className="font-semibold text-gray-700">구매 현황</h2>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-center text-sm">
+
+                        <Link href="/tradeList?type=buyRegister" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">구매 등록</p>
+                                <p className="text-green-600 font-bold text-xl">
+                                    {buyRegisterCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
+
                         <Link href="/tradeList?type=buying" className="block text-center cursor-pointer">
                             <div>
                                 <p className="text-gray-600">구매중</p>

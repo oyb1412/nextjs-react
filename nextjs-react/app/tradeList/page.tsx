@@ -91,30 +91,44 @@ export default function TradeListPage() {
                                 <div className="flex justify-between items-center mb-2">
                 <span
                     className={`px-2 py-1 text-xs font-semibold rounded ${
-                        item.status === 'selling' || item.status === 'buying'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-200 text-gray-600'
+                        item.status === 'selling'
+                            ? 'bg-blue-700 text-white'
+                            : item.status === 'sellRegister'
+                                ? 'bg-blue-100 text-blue-700'
+                                : item.status === 'buying'
+                                    ? 'bg-green-700 text-white'
+                                    : item.status === 'buyRegister'
+                                        ? 'bg-green-100 text-green-700'
+                                        : item.status === 'sellover' || item.status === 'buyover'
+                                            ? 'bg-gray-200 text-gray-600'
+                                            : ''
                     }`}
                 >
+                    {item.status === 'sellRegister' && '판매등록'}
                     {item.status === 'selling' && '판매중'}
                     {item.status === 'sellover' && '판매종료'}
+                    {item.status === 'buyRegister' && '구매등록'}
                     {item.status === 'buying' && '구매중'}
                     {item.status === 'buyover' && '구매종료'}
                 </span>
                                     <span className="text-sm text-gray-500">{item.order_date}</span>
                                 </div>
 
-                                {(item.status === 'selling' || item.status === 'buying') && (
-                                    <Link
-                                        href={
-                                            item.status === 'selling'
-                                                ? `/sellConfirm/${item.item_id}`
-                                                : `/buyConfirm/${item.item_id}`
-                                        }
-                                    >
+                                <Link
+                                    href={
+                                        item.status === 'sellRegister'
+                                            ? `/sellPage/${item.item_id}`
+                                            : item.status === 'buyRegister'
+                                                ? `/buyPage/${item.item_id}`
+                                                : item.status === 'selling'
+                                                    ? `/sellConfirm/${item.item_id}`
+                                                    : item.status === 'buying'
+                                                        ? `/buyConfirm/${item.item_id}`
+                                                        : '#'
+                                    }
+                                >
                                         <h2 className="text-lg font-bold">{item.title}</h2>
                                     </Link>
-                                )}
 
                                 <div className="text-sm text-gray-600">
                                     수량: <span className="font-semibold">{item.amount}</span> / 가격: <span className="font-semibold">{item.price.toLocaleString()}원</span>

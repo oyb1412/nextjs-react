@@ -17,10 +17,10 @@ export default async function handler(
 
     const pool = await getPool();
 
-    const [itemRows] = await pool.query('SELECT * FROM sellitem WHERE id = ?' , [parsePageId]) as RowDataPacket[][];
+    const [itemRows] = await pool.query('SELECT * FROM item WHERE id = ? AND item_type = ?' , [parsePageId, 'SELL']) as RowDataPacket[][];
     const item = itemRows[0];
 
-    const sellerId = item.seller_id;
+    const sellerId = item.user_id;
     const [sellerRows] = await pool.query('SELECT name FROM user WHERE id = ?', [sellerId]) as RowDataPacket[][];
     const seller = sellerRows[0];
 

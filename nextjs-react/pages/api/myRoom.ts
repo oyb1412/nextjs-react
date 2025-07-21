@@ -17,11 +17,11 @@ export default async function handler (
     const userId = user.id;
 
     //sellitem 말고 sellorder로 검색해야할듯.
-    const [sellingItemRows] = await pool.query('SELECT COUNT(*) as count FROM sellorder WHERE seller_id=? AND is_selling=?', [userId, 1]) as RowDataPacket[][];
-    const [sellOverItemRows] = await pool.query('SELECT COUNT(*) as count FROM sellorder WHERE seller_id=? AND is_sellover=?', [userId, 1]) as RowDataPacket[][];
+    const [sellingItemRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE seller_id=? AND stat=? OR stat=?', [userId, 'REQUEST', 'OK']) as RowDataPacket[][];
+    const [sellOverItemRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE seller_id=? AND stat=?', [userId, 'DONE']) as RowDataPacket[][];
 
-    const [buyingItemRows] = await pool.query('SELECT COUNT(*) as count FROM buyorder WHERE buyer_id=? AND is_buying=?', [userId, 1]) as RowDataPacket[][];
-    const [buyOverItemRows] = await pool.query('SELECT COUNT(*) as count FROM buyorder WHERE buyer_id=? AND is_buyover=?', [userId, 1]) as RowDataPacket[][];
+    const [buyingItemRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE buyer_id=? AND stat=? OR stat=?', [userId, 'REQUEST', 'OK']) as RowDataPacket[][];
+    const [buyOverItemRows] = await pool.query('SELECT COUNT(*) as count FROM orders WHERE buyer_id=? AND stat=?', [userId, 'DONE']) as RowDataPacket[][];
     const tradingItem = {
         sellingItemCount : sellingItemRows[0].count,
         sellOverItemCount : sellOverItemRows[0].count,
@@ -34,10 +34,10 @@ export default async function handler (
 
     let tradeOverItem: any[] = [];
 
-    const [sellOrderRows] = await pool.query ('SELECT item_id, order_date, order_over_date FROM sellorder WHERE seller_id=?', [userId]) as RowDataPacket[][];
+    const [sellOrderRows] = await pool.query ('SELECT item_id, order_date, order_over_date FROM orders WHERE seller_id=?', [userId]) as RowDataPacket[][];
 
     for(const row of sellOrderRows){
-        const [itemRows] = await pool.query('SELECT selected_game, selected_server, amount, price FROM sellitem WHERE id=? AND is_sellover=?', [row.item_id, 1]) as RowDataPacket[][];
+        const [itemRows] = await pool.query('SELECT selected_game, selected_server, amount, price FROM item WHERE id=? AND stat=? AND item_type=?', [row.item_id, 'DONE', 'SELL']) as RowDataPacket[][];
 
         if(!itemRows || itemRows.length === 0)
             continue;
@@ -53,10 +53,10 @@ export default async function handler (
         });
     }
 
-    const [buyOrderRows] = await pool.query ('SELECT item_id, order_date, order_over_date FROM buyorder WHERE buyer_id=?', [userId]) as RowDataPacket[][];
+    const [buyOrderRows] = await pool.query ('SELECT item_id, order_date, order_over_date FROM orders WHERE buyer_id=?', [userId]) as RowDataPacket[][];
 
     for(const row of buyOrderRows){
-        const [itemRows] = await pool.query('SELECT selected_game, selected_server, amount, price FROM buyitem WHERE id=? AND is_buyover=?', [row.item_id, 1]) as RowDataPacket[][];
+        const [itemRows] = await pool.query('SELECT selected_game, selected_server, amount, price FROM item WHERE id=? AND stat=? AND item_type', [row.item_id, 'DONE', 'BUY']) as RowDataPacket[][];
 
         if(!itemRows || itemRows.length === 0)
             continue;
@@ -72,11 +72,18 @@ export default async function handler (
         });
     }
 
-    //모든 나 대상 알림을 reading = 1으로 변경
+    //내가 등록한 판매 아이템 갯수 카운트
+    const [sellRegisterRows] = await pool.query('SELECT COUNT(*) as count FROM item WHERE user_id=? AND item_type=? AND stat=?', [userId, 'SELL', 'IDLE']) as RowDataPacket[][];
+    //내가 등록한 구매 아이템 갯수 카운트
+    const [buyRegisterRows] = await pool.query('SELECT COUNT(*) as count FROM item WHERE user_id=? AND item_type=? AND stat=?', [userId, 'BUY', 'IDLE']) as RowDataPacket[][];
+
+
 
     return res.json({
         success : true,
         tradingItem : tradingItem,
-        tradeOverItem : tradeOverItem
+        tradeOverItem : tradeOverItem,
+        sellRegisterCount : sellRegisterRows[0].count,
+        buyRegisterCount : buyRegisterRows[0].count
     });
 }
