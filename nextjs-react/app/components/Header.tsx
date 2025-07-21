@@ -27,17 +27,19 @@ export default function Header() {
 
     useEffect(() => {
         const fetchUnreadAlarm = async () => {
+            setHasUnreadAlarm(false);
             const token = localStorage.getItem('accessToken');
-            if(!token){
+            if(!token || !user)
                 return;
-            }
+
 
             try{
-                const res = await fetch(`/api/unreadAlarm?userId=${token}`,{
+                const res = await fetch(`/api/unreadAlarm?userId=${user}`,{
                     method: "GET",
                     headers : {
                         'Authorization' : `Bearer ${token}`
-                    }
+                    },
+                    cache : "no-store"
                 });
 
                 const result = await res.json();
@@ -56,7 +58,7 @@ export default function Header() {
 
         // 컴포넌트 언마운트 시 인터벌 제거
         return () => clearInterval(intervalId);
-    }, []);
+    }, [user]);
 
     return (
         <header className="w-full bg-white border-b shadow-sm">
@@ -120,12 +122,14 @@ export default function Header() {
 
                 <div className="flex items-center gap-6 text-sm text-gray-700 whitespace-nowrap">
                     {/* 알림 텍스트 */}
-                    <div className="relative font-bold text-base text-black-600">
-                        알림
-                        {hasUnreadAlarm && (
-                            <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"></span>
-                        )}
-                    </div>
+                    {user && (
+                        <Link href="/myRoom" className="relative font-bold text-base text-black-600">
+                            알림
+                            {hasUnreadAlarm && (
+                                <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                            )}
+                        </Link>
+                    )}
 
                     {/* 로그인/로그아웃 버튼 */}
                     {user ? (

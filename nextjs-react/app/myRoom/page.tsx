@@ -1,6 +1,6 @@
 'use client';
 import {useEffect, useState} from "react";
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation"; // 페이지 이동 관리용 훅
 import Link from "next/link";
 
 export default function MyRoomPage() {
@@ -39,7 +39,7 @@ export default function MyRoomPage() {
 
             try{
                 const res = await fetch('/api/myRoom', {
-                    method : "GET",
+                    method : 'POST',
                     headers : {
                         'Authorization' : `Bearer ${token}`
                     }
@@ -64,6 +64,14 @@ export default function MyRoomPage() {
     }, []);
 
     return (
+        <>
+            {loading && (
+                <div className="fixed inset-0 bg-white/80 z-[9999] flex items-center justify-center">
+                    <div className="text-2xl font-bold text-gray-700 animate-pulse">
+                        로딩 중...
+                    </div>
+                </div>
+            )}
         <main className="max-w-4xl mx-auto px-4 py-10">
             {/* 거래 현황 */}
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -71,22 +79,25 @@ export default function MyRoomPage() {
                 <div className="border border-blue-300 rounded-lg p-6">
                     <div className="flex items-center mb-4">
                         <span className="text-blue-600 font-bold text-lg mr-2">🪙 SELL</span>
-                        <h2 className="font-semibold text-gray-700">판매 등록</h2>
+                        <h2 className="font-semibold text-gray-700">판매 현황</h2>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-center text-sm">
-
-                        <div>
-                            <p className="text-gray-600">판매중</p>
-                            <p className="text-blue-600 font-bold text-xl">0</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">판매종료</p>
-                            <p className="text-blue-600 font-bold text-xl">0</p>
-                        </div>
-
-                    </div>
-                    <div className="mt-4 text-right text-sm text-blue-500 hover:underline cursor-pointer">
-                        자세히보기
+                        <Link href="/tradeList?type=selling" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">판매중</p>
+                                <p className="text-blue-600 font-bold text-xl">
+                                    {tradingItem?.sellingItemCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
+                        <Link href="/tradeList?type=sellover" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">판매종료</p>
+                                <p className="text-blue-600 font-bold text-xl">
+                                    {tradingItem?.sellOverItemCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
                     </div>
                 </div>
 
@@ -94,21 +105,27 @@ export default function MyRoomPage() {
                 <div className="border border-green-300 rounded-lg p-6">
                     <div className="flex items-center mb-4">
                         <span className="text-green-600 font-bold text-lg mr-2">💸 BUY</span>
-                        <h2 className="font-semibold text-gray-700">구매 등록</h2>
+                        <h2 className="font-semibold text-gray-700">구매 현황</h2>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                        <Link href="/tradeList?type=buying" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">구매중</p>
+                                <p className="text-green-600 font-bold text-xl">
+                                    {tradingItem?.buyingItemCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
 
-                        <div>
-                            <p className="text-gray-600">구매중</p>
-                            <p className="text-green-600 font-bold text-xl">0</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">구매종료</p>
-                            <p className="text-green-600 font-bold text-xl">0</p>
-                        </div>
-                    </div>
-                    <div className="mt-4 text-right text-sm text-green-500 hover:underline cursor-pointer">
-                        자세히보기
+                        <Link href="/tradeList?type=buyover" className="block text-center cursor-pointer">
+                            <div>
+                                <p className="text-gray-600">구매종료</p>
+                                <p className="text-green-600 font-bold text-xl">
+                                    {tradingItem?.buyOverItemCount ?? 0}
+                                </p>
+                            </div>
+                        </Link>
+
                     </div>
                 </div>
             </section>
@@ -117,26 +134,33 @@ export default function MyRoomPage() {
             <section className="bg-gray-50 border rounded-lg p-6">
                 <h2 className="font-semibold text-gray-700 mb-4">최근 거래내역</h2>
 
-                <div className="border rounded bg-white px-4 py-3 flex justify-between items-center">
-                    <div className="flex items-center gap-3 text-sm">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <div className="text-gray-800">
-                            <p className="font-semibold">메이플스토리 · 스카니아</p>
-                            <p className="text-gray-600 text-xs">[수량 : 227억] 개인 메소 팝니다. 접속중</p>
+                {tradeOverItem.length > 0 ? (
+                    tradeOverItem.map((item, index) => (
+                        <div key={index} className="border rounded bg-white px-4 py-3 flex justify-between items-center mb-3">
+                            <div className="flex items-center gap-3 text-sm">
+                                <div className={`w-2 h-2 rounded-full ${item.is_sell ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                <div className="text-gray-800">
+                                    <p className="font-semibold">{item.selected_game} · {item.selected_server}</p>
+                                    <p className="text-gray-600 text-xs">[수량 : {item.amount}] {item.is_sell ? '판매' : '구매'} 완료</p>
+                                </div>
+                            </div>
+                            <div className="text-right text-sm text-gray-600">
+                                <p className="font-bold text-gray-800">{item.price.toLocaleString()}원</p>
+                                <p className="text-xs">{item.order_date}</p>
+                                <p className={`${item.is_sell ? 'text-blue-600' : 'text-green-600'} font-semibold text-sm`}>
+                                    {item.is_sell ? '판매완료' : '구매완료'}
+                                </p>
+                            </div>
                         </div>
+                    ))
+                ) : (
+                    <div className="mt-6 text-center text-gray-500 text-sm">
+                        최근 거래내역이 없습니다.
                     </div>
-                    <div className="text-right text-sm text-gray-600">
-                        <p className="font-bold text-gray-800">442,650원</p>
-                        <p className="text-xs">06-09</p>
-                        <p className="text-blue-600 font-semibold text-sm">판매완료</p>
-                    </div>
-                </div>
-
-                {/* 최근 거래 없음 메시지 */}
-                <div className="mt-6 text-center text-gray-500 text-sm">
-                    최근 거래내역이 없습니다.
-                </div>
+                )}
             </section>
+
         </main>
+            </>
     );
 }

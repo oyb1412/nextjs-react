@@ -21,7 +21,7 @@ export default async function handler(
 
     const [userRows] = await pool.query('SELECT point FROM user WHERE id=?', [user.id]) as RowDataPacket[][];
 
-    const [sellItemRows] = await pool.query('SELECT seller_id FROM sellitem WHERE id=?', [parsePageId]) as RowDataPacket[][];
+    const [sellItemRows] = await pool.query('SELECT * FROM sellitem WHERE id=?', [parsePageId]) as RowDataPacket[][];
 
     //내가 작성한 판매글인지 체크
     if(sellItemRows[0].seller_id == user.id)
@@ -43,6 +43,16 @@ export default async function handler(
 
     //거래 아이템 상태 is_selling, is_idle 변경
     await pool.query('UPDATE sellitem SET is_idle =?, is_selling=? WHERE id=?', [0, 1, parsePageId]);
+
+    //sell 주문 이력 추가
+    await pool.query('INSERT INTO sellorder(seller_id, item_id) VALUES(?,?)', [sellItemRows[0].seller_id, parsePageId]);
+
+    //buy 주문 이력 추가
+    await pool.query('INSERT INTO buyorder(buyer_id, item_id) VALUES(?,?)', [user.id, parsePageId]);
+
+    //buy item 추가
+    await pool.query('INSERT INTO buyitem(buyer_id, seller_id,selected_game,selected_server, amount, price, char_name,title,content,is_register,is_idle,is_buying) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+        [user.id, sellItemRows[0].seller_id,sellItemRows[0].selected_game,sellItemRows[0].selected_server, sellItemRows[0].amount,sellItemRows[0].price,sellItemRows[0].char_name,sellItemRows[0].title,sellItemRows[0].content, 0,0,1]);
 
     return res.json({success : true});
 }

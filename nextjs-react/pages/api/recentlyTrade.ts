@@ -9,8 +9,8 @@ export default async function handler(
 
     const pool = await getPool();
 
-    const [sellRows] = await pool.query('SELECT id, selected_game, amount, price FROM sellitem WHERE is_idle=1 ORDER BY created_date DESC LIMIT 10');
-    const [buyRows] = await pool.query('SELECT id, selected_game, amount, price FROM buyitem WHERE is_idle=1 ORDER BY created_date DESC LIMIT 10');
+    const [sellRows] = await pool.query('SELECT id, selected_game, amount, price FROM sellitem WHERE is_idle=1 AND is_register=1 ORDER BY created_date DESC LIMIT 10');
+    const [buyRows] = await pool.query('SELECT id, selected_game, amount, price FROM buyitem WHERE is_idle=1 AND is_register=1 ORDER BY created_date DESC LIMIT 10');
 
     return res.json({success : true, recentSellList : sellRows, recentBuyList : buyRows});
 }
