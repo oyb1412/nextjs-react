@@ -52,8 +52,7 @@ export default function Home() {
             )}
 
             <main className="mx-auto px-4 pt-24 pb-12 max-w-screen-xl">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* 최근 판매글 목록 */}
                     <section className="bg-white border p-4 rounded shadow">
                         <h2 className="text-lg font-bold mb-4">최근 등록된 판매글</h2>
@@ -71,7 +70,7 @@ export default function Home() {
                                     <td className="py-2">
                                         <Link href={`/sellPage/${item.id}`}>
                                             <div className="w-full h-full text-blue-600 hover:underline">
-                                        {item.selected_game}
+                                                {item.selected_game}
                                             </div>
                                         </Link>
                                     </td>
@@ -111,21 +110,9 @@ export default function Home() {
                             </tbody>
                         </table>
                     </section>
-
-                    {/* 인기 거래 게임 */}
-                    <section className="bg-white border p-4 rounded shadow">
-                        <h2 className="text-lg font-bold mb-4">최근 거래량 많은 게임</h2>
-                        <ol className="space-y-2 text-sm">
-                            {[1, 2, 3, 4, 5].map((rank) => (
-                                <li key={rank} className="flex justify-between px-2 py-1 bg-gray-100 rounded">
-                                    <span>{rank}.</span>
-                                    <span>게임명</span>
-                                </li>
-                            ))}
-                        </ol>
-                    </section>
                 </div>
             </main>
         </>
     );
+
 }

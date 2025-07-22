@@ -18,9 +18,11 @@ export default async function handler(
     const user = await authenticate(req);
     if(!user) return res.json({success : false, message : "로그인 필요"})
 
+    console.log("parsePageId", parsePageId);
     const pool = await getPool();
+    const [itemRows] = await pool.query('SELECT * FROM item WHERE id = ?' , [parsePageId]) as RowDataPacket[][];
 
-    const [itemRows] = await pool.query('SELECT * FROM item WHERE id = ? AND item_type=?' , [parsePageId, 'SELL']) as RowDataPacket[][];
+    console.log("itemRows", itemRows);
 
     const item = itemRows[0];
 

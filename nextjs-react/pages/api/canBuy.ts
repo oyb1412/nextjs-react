@@ -39,13 +39,13 @@ export default async function handler(
     await pool.query('UPDATE user SET point = point - ? WHERE id =?', [parsePrice, user.id]);
 
     //알림 추가
-    await pool.query('INSERT INTO alarm(user_id, is_sell, target_item_id, reading) VALUES(?,?,?,?)', [sellItemRows[0].seller_id, 1, parsePageId, 0] );
+    await pool.query('INSERT INTO alarm(user_id, is_sell, target_item_id, reading) VALUES(?,?,?,?)', [sellItemRows[0].user_id, 1, parsePageId, 0] );
 
     //거래 아이템 상태 is_selling, is_idle 변경
     await pool.query('UPDATE item SET stat=? WHERE id=?', ['REQUEST', parsePageId]);
 
     //sell 주문 이력 추가
-    await pool.query('INSERT INTO order(seller_id, buyer_id, item_id, item_type) VALUES(?,?,?,?)', [sellItemRows[0].seller_id, user.id, parsePageId,'SELL']);
+    await pool.query('INSERT INTO orders(seller_id, buyer_id, item_id, item_type) VALUES(?,?,?,?)', [sellItemRows[0].user_id, user.id, parsePageId,'SELL']);
 
     return res.json({success : true});
 }

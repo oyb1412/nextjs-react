@@ -1,12 +1,12 @@
 import type {NextApiRequest, NextApiResponse} from "next";
-import {getPool} from "@/lib/db";
+import {getPool} from '@/lib/db';
 import {RowDataPacket} from "mysql2";
-import {authenticate} from "@/lib/auth";
 
 export default async function handler(
-    req : NextApiRequest,
+    req :  NextApiRequest,
     res : NextApiResponse
-) {
+
+){
     if(req.method !== 'GET') return res.json({success : false, message : "요청 타입이 올바르지 않습니다"});
 
     const {pageId} = req.query;
@@ -15,42 +15,32 @@ export default async function handler(
 
     if(!parsePageId || parsePageId < 1) return res.json({success : false, message : "글 정보가 올바르지 않습니다"});
 
-    const user = await authenticate(req);
-    if(!user) return res.json({success : false, message : "로그인 필요"})
-
     const pool = await getPool();
 
-    const [itemRows] = await pool.query('SELECT * FROM item WHERE id = ?' , [parsePageId]) as RowDataPacket[][];
-
+    const [itemRows] = await pool.query('SELECT * FROM item WHERE id = ? AND item_type = ?' , [parsePageId, 'BUY']) as RowDataPacket[][];
     const item = itemRows[0];
 
     const buyerId = item.user_id;
     const [buyerRows] = await pool.query('SELECT name FROM user WHERE id = ?', [buyerId]) as RowDataPacket[][];
     const buyer = buyerRows[0];
 
-    const sellerId = user.id;
-
-    const [sellerRows] = await pool.query('SELECT name FROM user WHERE id = ?', [sellerId]) as RowDataPacket[][];
-    const seller = sellerRows[0];
-
-    const result = {
+    const result ={
         selected_game : item.selected_game,
         selected_server : item.selected_server,
         amount : item.amount,
         price : item.price,
-        seller_id : sellerId,
-        buyer_id : buyerId,
+        buyer_id :buyerId,
         char_name : item.char_name,
-        seller_name : seller.name,
         buyer_name : buyer.name,
         title : item.title,
         content : item.content,
         created_date : item.created_date,
+
     }
 
     return res.json({
         success : true,
-        message : "거래 정보를 불러왔습니다",
-        tradeDescription : result
+        message : "글 정보를 불러왔습니다",
+        buyDescription : result
     });
 }

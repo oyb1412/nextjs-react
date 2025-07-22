@@ -36,7 +36,7 @@ export default async function handler(
     switch (type){
         case 'selling':
             //sellorder에서 is_selling == 1 인것만 뽑기
-            const [sellingRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE seller_id=? AND stat=? OR stat=? AND item_type=?', [userId, 'REQUEST', 'OK', 'SELL']) as RowDataPacket[][];
+            const [sellingRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE seller_id=? AND stat=? OR stat=? ', [userId, 'REQUEST', 'OK']) as RowDataPacket[][];
 
             //for돌면서 각 아이템 push
             for(const row of sellingRows){
@@ -58,7 +58,7 @@ export default async function handler(
 
         case 'sellover':
             //sellorder에서 is_sellover == 1 인것만 뽑기
-            const [selloverRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE seller_id=? AND item_type=? AND stat', [userId, 'SELL', 'DONE']) as RowDataPacket[][];
+            const [selloverRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE seller_id=?  AND stat', [userId,  'DONE']) as RowDataPacket[][];
 
             //for돌면서 각 아이템 push
             for(const row of selloverRows){
@@ -80,7 +80,7 @@ export default async function handler(
 
         case 'buying':
             //buyorder에서 is_buying == 1 인것만 뽑기
-            const [buyingRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE buyer_id=? AND item_type=? AND stat=? OR stat=?', [userId, 'BUY', 'REQUEST', 'OK']) as RowDataPacket[][];
+            const [buyingRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE buyer_id=?  AND stat=? OR stat=?', [userId,  'REQUEST', 'OK']) as RowDataPacket[][];
 
             //for돌면서 각 아이템 push
             for(const row of buyingRows){
@@ -102,7 +102,7 @@ export default async function handler(
 
         case 'buyover':
             //buyorder에서 is_buyover == 1 인것만 뽑기
-            const [buyoverRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE buyer_id=? AND item_type=? AND stat=?', [userId, 'BUY', 'DONE']) as RowDataPacket[][];
+            const [buyoverRows] = await pool.query('SELECT item_id, order_date FROM orders WHERE buyer_id=?  AND stat=?', [userId,  'DONE']) as RowDataPacket[][];
 
             //for돌면서 각 아이템 push
             for(const row of buyoverRows){
@@ -123,7 +123,7 @@ export default async function handler(
             break;
 
         case 'buyRegister':
-            const [buyRegisterRows] = await pool.query('SELECT id, amount, price, title,created_date FROM item WHERE user_id=? AND item_type=? AND stat=?',[userId, 'BUY', 'IDLE']) as RowDataPacket[][];
+            const [buyRegisterRows] = await pool.query('SELECT id, amount, price, title,created_date FROM item WHERE user_id=?  AND stat=?',[userId, 'IDLE']) as RowDataPacket[][];
 
             for(const row of buyRegisterRows){
                 tradeList.push({
@@ -140,7 +140,7 @@ export default async function handler(
 
 
         case 'sellRegister':
-            const [sellRegisterRows] = await pool.query('SELECT id, amount, price, title,created_date FROM item WHERE user_id=? AND item_type=? AND stat=?',[userId, 'SELL', 'IDLE']) as RowDataPacket[][];
+            const [sellRegisterRows] = await pool.query('SELECT id, amount, price, title,created_date FROM item WHERE user_id=?  AND stat=?',[userId,  'IDLE']) as RowDataPacket[][];
 
             for(const row of sellRegisterRows){
                 tradeList.push({

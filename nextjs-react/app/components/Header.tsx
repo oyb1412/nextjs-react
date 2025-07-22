@@ -54,11 +54,11 @@ export default function Header() {
         fetchUnreadAlarm().then();
 
         // 1분마다 실행
-        const intervalId = setInterval(fetchUnreadAlarm, 60000);
+        const intervalId = setInterval(fetchUnreadAlarm, 6000);
 
         // 컴포넌트 언마운트 시 인터벌 제거
         return () => clearInterval(intervalId);
-    }, [user]);
+    }, [user, hasUnreadAlarm]);
 
     return (
         <header className="w-full bg-white border-b shadow-sm">

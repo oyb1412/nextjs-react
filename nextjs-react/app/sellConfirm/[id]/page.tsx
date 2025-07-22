@@ -20,6 +20,8 @@ export default function sellConfirm(){
         created_date : string,
     }
 
+    const [buyerOk, setBuyerOk ] = useState<boolean>(false);
+    const [sellerOk, setSellerOk ] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [tradeDescription, setTradeDescription] = useState<tradeDescription>();
     const router = useRouter();
@@ -63,9 +65,92 @@ export default function sellConfirm(){
         fetchTradeDescription().then();
     }, []);
 
-    //30초 간격으로 상대방의 인계사실 확인하기
+    //인계확인 전송 함수
+    async function okHandler(e : React.FormEvent) {
+        e.preventDefault(); //폼 기본 액션 막기
 
-    //인수확인 전송 함수
+        if(!confirm("정말 인계확인을 하시겠습니까?"))
+            return;
+
+        const token = localStorage.getItem('accessToken');
+        if(!token){
+            alert("로그인 후 이용해 주세요");
+            router.push("/");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const res = await fetch(`/api/sellerOk?pageId=${pageId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization' : `Bearer ${token}`},
+                body: JSON.stringify({ok: true})
+            });
+
+            const result = await res.json();
+
+            if(result.success){
+                setSellerOk(true);
+                //거래 종료시 메인 페이지로 이동
+                if(result.done)
+                {
+                    alert("거래가 완료되었습니다");
+                    router.push("/");
+                    return;
+                }
+
+            }else{
+                console.error(result.message);
+            }
+        }catch (e) {
+            console.error(e);
+        }finally {
+            setLoading(false);
+        }
+    }
+
+    //30초 간격으로 상대방의 인계사실 확인하기
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if(!token){
+            alert("로그인 후 이용해 주세요");
+            router.push("/");
+            return;
+        }
+
+        const checkImmediately = async () => {
+            try {
+                const res = await fetch(`/api/checkBuyerOk?pageId=${pageId}`,
+                    {
+                        method : 'GET',
+                        headers : {
+                            'Authorization' : `Bearer ${token}`,
+                        }
+                    });
+                const result = await res.json();
+
+                if (result.success && result.buyerOk) {
+                    setBuyerOk(true);
+
+                    //거래 종료시 메인 페이지로 이동
+                    if(result.done)
+                    {
+                        alert("거래가 완료되었습니다");
+                        router.push("/");
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("상대방 인계 확인 실패:", err);
+            }
+        }
+        checkImmediately().then();
+
+        const interval = setInterval(checkImmediately, 30000); // 이후 30초 간격 반복
+
+        return () => clearInterval(interval);
+    }, [pageId]);
 
 
     return (
@@ -124,12 +209,24 @@ export default function sellConfirm(){
                     </section>
 
                     {/* 인계 완료 버튼 */}
-                    <div className="flex justify-center">
+                    <div className="flex flex-col items-center gap-2">
                         <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded text-lg"
+                            className={`px-8 py-2 rounded text-lg ${
+                                sellerOk
+                                    ? 'bg-gray-400 text-white cursor-default'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                            disabled={sellerOk}
+                            onClick={okHandler}
                         >
-                            인계 완료
+                            {sellerOk ? '인계를 확인했습니다' : '인계 완료'}
                         </button>
+
+                        {buyerOk && (
+                            <span className="text-green-600 font-semibold">
+                    ✅ 상대방이 인수를 확인했습니다
+                     </span>
+                        )}
                     </div>
                 </main>
             )}
